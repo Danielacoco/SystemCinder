@@ -1,0 +1,30 @@
+<?xml version = '1.0' encoding="UTF-8" ?>
+
+<demoElement projectors ="2" 
+             width ="700" 
+             height="700" 
+             display="FlatDisplay" 
+             tracker="Mouse" 
+             renderer ="OpenGL">
+	<!-- Specify number of projectors-->
+	<projectors>2</projectors>
+  <width>700</width>
+  
+  <height>700</height>
+	<!-- Specify Display: VirtualSphere, VirtualCube, Cube, Sphere, Flat-->
+	<display>VirtualSphere</display>
+
+	<!-- Specify Tracker: Kinect, Fastrak-->
+	<tracker>Fastrak</tracker>
+
+	<!-- Specify Renderer: OpenGL, Unreal, Unity-->
+	<renderer>Unreal</renderer>
+
+</demoElement>
+
+
+
+
+
+
+
