@@ -39,10 +39,12 @@ public:
 	void pick(const ivec2 &mousepOS); // maybe pick projectors?
 
 	void createGrid();
-	void createDisplay(gl::FboRef mFbo);
+	void createShaders();
+	void createDisplay();//gl::FboRef mFbo
 	void createParams();
 	void setUpProjectors();
 	void drawProjectors();
+	void setUpFboShouldBeMappedTexture(gl::FboRef mFbo);
 
 	bool mWireframe;
 	//bool mSolidframe;
@@ -58,6 +60,7 @@ public:
 	enum DisplayShape { SPHERE, CUBE };
 
 	gl::GlslProgRef		mShader;
+	gl::GlslProgRef		mWireShader;
 	CameraPersp  vCam;
 	gl::VboMeshRef  mVerticesMetch;
 	gl::BatchRef mVerticesBatch;
@@ -66,7 +69,9 @@ public:
 	vec4 mDefaultVertexColor = vec4(0.7f, 0.3f, 0.7f, 1.0f);
 
 	
-
+#if ! defined ( CINDER_GL_ES )
+	params::InterfaceGlRef	mParams;
+#endif
 
 private:
 	// Selected Primitive and Current primitive
@@ -77,9 +82,8 @@ private:
 	int mDivHoriz = 15;
 	int mDivVerti = 20;
 	int mDivCircle = 72;
+	gl::FboRef mFboShouldBeMappedTextureInFuture;
 
-#if ! defined ( CINDER_GL_ES )
-	params::InterfaceGlRef	mParams;
-#endif
+
 };
 #endif

@@ -17,7 +17,7 @@ char* XML_FILE_PATH = "sampleConfigFile.xml";
 
 void prepareSettings(App::Settings* settings)
 {
-	settings->setWindowSize(1024, 768);
+	settings->setWindowSize(1024, 1024);
 }
 class SystemCinderApp : public App {
   public:
@@ -268,9 +268,10 @@ void SystemCinderApp::draw()
 	gl::setMatrices(mCamFbo);
 	
 	// make texture out of the scene rendered into our FBO
-	VirtualSphere->createDisplay(mFbo);
+	VirtualSphere->createDisplay();
 
 	//mFbo->bindTexture();
+	VirtualSphere->setUpFboShouldBeMappedTexture(mFbo);
 
 	{
 		// use our FBO to texture the sphere
@@ -289,6 +290,11 @@ void SystemCinderApp::draw()
 	VirtualSphere->setUpProjectors();
 	VirtualSphere->drawProjectors();
 
+#if ! defined( CINDER_GL_ES )
+	if (VirtualSphere->mParams)
+		VirtualSphere->mParams->draw();
+#endif
+
 	
 
 	//drawScene();
@@ -296,4 +302,4 @@ void SystemCinderApp::draw()
 
 
 
-CINDER_APP( SystemCinderApp, RendererGl )
+CINDER_APP( SystemCinderApp, RendererGl, prepareSettings )

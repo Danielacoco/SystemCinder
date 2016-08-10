@@ -3,7 +3,7 @@
 <demoElement projectors ="2" 
              width ="700" 
              height="700" 
-             display="FlatDisplay" 
+             display="VirtualSphere" 
              tracker="Mouse" 
              renderer ="OpenGL">
 	<!-- Specify number of projectors-->

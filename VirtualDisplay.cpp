@@ -7,8 +7,11 @@ VirtualDisplay::VirtualDisplay(string* displayType){
 	else {
 		mShapeSelected = mShapeCurrent = SPHERE;
 	}
-	mWireframe = false;
+	mWireframe = true;
 	//mSolidframe = true;
+	createShaders();
+	createDisplay();
+	createParams();
 
 }
 
@@ -53,47 +56,45 @@ void VirtualDisplay::createParams(){
 #endif
 }
 
-void loadGeometry(){
+void VirtualDisplay::setUpFboShouldBeMappedTexture(gl::FboRef mFbo){
+
+	mFboShouldBeMappedTextureInFuture = mFbo;
 
 }
-void VirtualDisplay::createDisplay(gl::FboRef mFbo){
-	auto shader = gl::ShaderDef().texture().lambert();
+void VirtualDisplay::createDisplay(){
 	switch (mShapeCurrent) {
 	default:
 		mShapeSelected = SPHERE;
 	case SPHERE:
 		if (mWireframe == true){
-			try {
-				mShader = gl::context()->getStockShader(gl::ShaderDef().color());
-			}
-			catch (Exception &exc) {
-				exit;
-			}
+			
 			mDisplay = gl::Batch::create(geom::WireSphere().radius(3).center(vec3(0, 3, 0)).subdivisionsHeight(mDivVerti).subdivisionsAxis(mDivHoriz).subdivisionsCircle(mDivCircle), mShader);
 		}
 		else {
-			mFbo->bindTexture();
-			mShader = gl::getStockShader(shader);
+			mFboShouldBeMappedTextureInFuture->bindTexture();
 			mDisplay = gl::Batch::create(geom::Sphere().radius(3).center(vec3(0, 3, 0)), mShader); \
 		}
 	case CUBE:
 		if (mWireframe == true){
-			try {
-				mShader = gl::context()->getStockShader(gl::ShaderDef().color());
-			}
-			catch (Exception &exc) {
-				exit;
-			}
-			mDisplay = gl::Batch::create(geom::WireCube().subdivisionsX(mDivVerti).subdivisionsY(mDivHoriz).subdivisionsZ(mDivCircle), mShader);
+			mDisplay = gl::Batch::create(geom::WireCube().subdivisionsX(mDivVerti).subdivisionsY(mDivHoriz).subdivisionsZ(mDivCircle), mWireShader);
 		}
 		else {
-			mFbo->bindTexture();
-			mShader = gl::getStockShader(shader);
-
+			mFboShouldBeMappedTextureInFuture->bindTexture();
 			mDisplay = gl::Batch::create(geom::Cube(), mShader); \
 		}
 
 	}
+}
+void VirtualDisplay::createShaders(){
+	try {
+		mWireShader = gl::context()->getStockShader(gl::ShaderDef().color());
+	}
+	catch (Exception &exc) {
+		exit;
+	}
+
+	auto shader = gl::ShaderDef().texture().lambert();
+	mShader = gl::getStockShader(shader);
 }
 
 
