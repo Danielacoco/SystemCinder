@@ -53,11 +53,10 @@ public:
 	//gl::BatchRef mWiredDisplay;
 	gl::BatchRef mDisplay;
 
-	CameraPersp mProjector1;
-	CameraPersp mProjector2;
-	vec3 mLookAt = vec3(0, 3, 0);
 
 	enum DisplayShape { SPHERE, CUBE };
+
+
 
 	gl::GlslProgRef		mShader;
 	gl::GlslProgRef		mWireShader;
@@ -72,7 +71,18 @@ public:
 #if ! defined ( CINDER_GL_ES )
 	params::InterfaceGlRef	mParams;
 #endif
+	// Projector variable settings
 
+	CameraPersp mProjector1;
+	CameraPersp mProjector2;
+	vec3 mLookAt1 = vec3(0, 3, 0);
+	vec3 mLookAt2 = vec3(0, 3, 0);
+	vec3 mEyePointProj1 = vec3(-2, 0, 0);
+	vec3 mEyePointProj2 = vec3(2, 0, 0);
+	float mFov = 25.0f;
+	float mnearPlane = 1.0;
+	float mfarPlane = 6.5;
+	vec2 mLensShift = vec2(0);
 private:
 	// Selected Primitive and Current primitive
 	DisplayShape			mShapeSelected;

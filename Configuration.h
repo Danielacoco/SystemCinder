@@ -17,9 +17,11 @@ public:
 	string GetTrackerType();
 
 	string GetDisplayType();
+	int GetDisplayID();
 
 	//If it's a cinderApp we will be using OpenGL for this
 	string GetRendererType(); 
+	
 
 	int GetNumberOfProjectors();
 	int GetWidthProjectors();
@@ -36,6 +38,7 @@ public:
 	int m_projectorWidth;
 	int m_projectorHeight;
 	const pugi::char_t* m_xml_display;
+	int m_xml_displayID;
 	const pugi::char_t* m_xml_demo;
 
 	//int m_widthProjectors[m_numProjectors];

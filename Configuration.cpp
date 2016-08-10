@@ -47,12 +47,18 @@ void Configuration::SetConfigurationVariables(char* file) {
 	m_xml_display = root.attribute("display").value();
 	//printf("%s\n", m_xml_display);
 
+	m_xml_displayID = root.attribute("displayID").as_int();
+
 	m_xml_tracker = root.attribute("tracker").value();
 	//printf("%s\n", m_xml_tracker);
 
 	m_xml_renderer = root.attribute("renderer").value();
 	//printf("%s\n", m_xml_renderer);
 
+}
+
+int Configuration::GetDisplayID(){
+	return m_xml_displayID;
 }
 
 int Configuration::GetNumberOfProjectors() {

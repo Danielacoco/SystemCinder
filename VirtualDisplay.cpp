@@ -7,10 +7,7 @@ VirtualDisplay::VirtualDisplay(string* displayType){
 	else {
 		mShapeSelected = mShapeCurrent = SPHERE;
 	}
-	mWireframe = true;
-	//mSolidframe = true;
-	createShaders();
-	createDisplay();
+	mWireframe = false;
 	createParams();
 
 }
@@ -39,20 +36,41 @@ void VirtualDisplay::createGrid(){
 	
 }
 void VirtualDisplay::createParams(){
-	// creating parameters for the UI, we can toggle values
+	// creating parameters for the UI can't toggle values, only for showcase
 #if ! defined( CINDER_GL_ES )
 	vector<string> displayShape = { "Sphere", "Cube" };
-	mParams = params::InterfaceGl::create(getWindow(), "Virtual Display", toPixels(ivec2(300, 340)));
+	mParams = params::InterfaceGl::create(getWindow(), "Virtual Display", toPixels(ivec2(300, 500)));
 	mParams->addParam("DisplayShape", displayShape, (int*)&mShapeSelected);
 	
 	mParams->addSeparator();
-
-	
 	mParams->addParam("Wire Display", &mWireframe);
 	mParams->addParam("Subdivision Horizontal for Wire Display", &mDivHoriz).min(1).max(500).updateFn([this] {createDisplay(); });
 	mParams->addParam("Subdivision Vertical for Wire Display", &mDivVerti).min(1).max(500).updateFn([this] {createDisplay(); });
 	mParams->addParam("Subdivision Circle for Wire Display", &mDivCircle).min(1).max(500).updateFn([this] {createDisplay(); });
 
+	mParams->addSeparator();
+	mParams->addParam("Projector1 X", &mEyePointProj1.x).step(0.01f);
+	mParams->addParam("Projector1 Y", &mEyePointProj1.y).step(0.01f);
+	mParams->addParam("Projector1 Z", &mEyePointProj1.z).step(0.01f);
+	mParams->addParam("Look At Projector1 X", &mLookAt1.x).step(0.01f);
+	mParams->addParam("Look At Projector1 Y", &mLookAt1.y).step(0.01f);
+	mParams->addParam("Look At Projector1 Z", &mLookAt1.z).step(0.01f);
+	mParams->addSeparator();
+	mParams->addParam("Projector2 X", &mEyePointProj2.x).step(0.01f);
+	mParams->addParam("Projector2 Y", &mEyePointProj2.y).step(0.01f);
+	mParams->addParam("Projector2 Z", &mEyePointProj2.z).step(0.01f);
+	mParams->addParam("Look At Projector2 X", &mLookAt2.x).step(0.01f);
+	mParams->addParam("Look At Projector2 Y", &mLookAt2.y).step(0.01f);
+	mParams->addParam("Look At Projector2 Z", &mLookAt2.z).step(0.01f);
+	mParams->addSeparator();
+	mParams->addParam("FOV", &mFov).min(1.0f).max(179.0f);
+	mParams->addParam("Near Plane", &mnearPlane).step(0.02f).min(0.1f);
+	mParams->addParam("Far Plane", &mfarPlane).step(0.02f).min(0.1f);
+	mParams->addParam("Lens Shift X", &mLensShift.x).step(0.01f);
+	mParams->addParam("Lens Shift Y", &mLensShift.y).step(0.01f);
+	mParams->addSeparator();
+
+	mParams->setPosition(vec2(700, 0));
 #endif
 }
 
@@ -62,26 +80,30 @@ void VirtualDisplay::setUpFboShouldBeMappedTexture(gl::FboRef mFbo){
 
 }
 void VirtualDisplay::createDisplay(){
+	vec3 offset(0, 3, 0);
 	switch (mShapeCurrent) {
 	default:
-		mShapeSelected = SPHERE;
+		mShapeSelected = CUBE;
 	case SPHERE:
 		if (mWireframe == true){
 			
-			mDisplay = gl::Batch::create(geom::WireSphere().radius(3).center(vec3(0, 3, 0)).subdivisionsHeight(mDivVerti).subdivisionsAxis(mDivHoriz).subdivisionsCircle(mDivCircle), mShader);
+			mDisplay = gl::Batch::create(geom::WireSphere().radius(3).center(vec3(0, 3, 0)).subdivisionsHeight(mDivVerti).subdivisionsAxis(mDivHoriz).subdivisionsCircle(mDivCircle), mWireShader);
 		}
 		else {
 			mFboShouldBeMappedTextureInFuture->bindTexture();
 			mDisplay = gl::Batch::create(geom::Sphere().radius(3).center(vec3(0, 3, 0)), mShader); \
 		}
+		break;
 	case CUBE:
 		if (mWireframe == true){
-			mDisplay = gl::Batch::create(geom::WireCube().subdivisionsX(mDivVerti).subdivisionsY(mDivHoriz).subdivisionsZ(mDivCircle), mWireShader);
+			mDisplay = gl::Batch::create(geom::WireCube().size(vec3(6,6,6)).subdivisionsX(mDivVerti).subdivisionsY(mDivHoriz).subdivisionsZ(mDivCircle), mWireShader);
 		}
 		else {
 			mFboShouldBeMappedTextureInFuture->bindTexture();
-			mDisplay = gl::Batch::create(geom::Cube(), mShader); \
+			auto cube = geom::Cube() >>geom::Scale(6)>> geom::Translate(offset);
+			mDisplay = gl::Batch::create(cube, mShader); 
 		}
+		break;
 
 	}
 }
@@ -100,22 +122,15 @@ void VirtualDisplay::createShaders(){
 
 void VirtualDisplay::setUpProjectors(){
 
-	vec3 EyePointProj1 = vec3(-2, 0, 0);
-	vec3 EyePointProj2 = vec3(2, 0, 0); 
-	float Fov = 25.0f;
-	float nearPlane = 1.0;
-	float farPlane = 6.5;
-	vec2 LensShift = vec2(0);
-	
 
-	mProjector1.setEyePoint(EyePointProj1);
-	mProjector2.setEyePoint(EyePointProj2);
-	mProjector1.setPerspective(Fov, (3/4.0), nearPlane, farPlane );
-	mProjector2.setPerspective(Fov, (3 / 4.0), nearPlane, farPlane);
-	mProjector1.setLensShift(LensShift);
-	mProjector2.setLensShift(LensShift);
-	mProjector1.lookAt(mLookAt);
-	mProjector2.lookAt(mLookAt);
+	mProjector1.setEyePoint(mEyePointProj1);
+	mProjector2.setEyePoint(mEyePointProj2);
+	mProjector1.setPerspective(mFov, (3/4.0), mnearPlane, mfarPlane );
+	mProjector2.setPerspective(mFov, (3 / 4.0), mnearPlane, mfarPlane);
+	mProjector1.setLensShift(mLensShift);
+	mProjector2.setLensShift(mLensShift);
+	mProjector1.lookAt(mLookAt1);
+	mProjector2.lookAt(mLookAt2);
 
 	
 
@@ -171,7 +186,7 @@ void VirtualDisplay::drawProjectors(){
 	auto ray1 = gl::VertBatch(GL_LINES);
 	ray1.color(Color(0.0f, 1.0f, 0.0f));
 	ray1.vertex(mProjector1.getEyePoint());
-	ray1.vertex(mLookAt);
+	ray1.vertex(mLookAt1);
 	ray1.draw();
 
 	//ray from proj2 to lookatpoint
@@ -179,7 +194,7 @@ void VirtualDisplay::drawProjectors(){
 	auto ray2 = gl::VertBatch(GL_LINES);
 	ray2.color(Color(0.0f, 1.0f, 0.0f));
 	ray2.vertex(mProjector2.getEyePoint());
-	ray2.vertex(mLookAt);
+	ray2.vertex(mLookAt2);
 	ray2.draw();
 
 

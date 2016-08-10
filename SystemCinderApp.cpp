@@ -28,6 +28,7 @@ class SystemCinderApp : public App {
 	void update() override;
 	void drawScene();
 	void keyDown(KeyEvent event) override;
+	void mouseDrag(MouseEvent event) override;
 
 	gl::TextureCubeMapRef	mCubeMap;
 	gl::BatchRef			mTeapotBatch, mSkyBoxBatch, mSphereBatch;
@@ -159,12 +160,13 @@ void SystemCinderApp::setupScene()
 
 void SystemCinderApp::mouseDown( MouseEvent event )
 {
+	mCamUi.mouseDown(event);
 }
 
 
 void SystemCinderApp::keyDown(KeyEvent event){
 	if (event.getCode() == KeyEvent::KEY_w){
-		VirtualSphere->mWireframe == !VirtualSphere->mWireframe;
+		VirtualSphere->mWireframe == !(VirtualSphere->mWireframe);
 	}
 
 }
@@ -174,14 +176,19 @@ void SystemCinderApp::drawSecond(){
 	gl::clear(data->mColor);
 	// for testing show the rendered scene to the FBO at the top left corner
 	gl::setMatricesWindow(toPixels(getWindowSize()));
-	gl::draw(mFbo->getColorTexture(), Rectf(0, 0, 129, 128));
+	gl::draw(mFbo->getColorTexture(), Rectf(0, 0, 256, 128));
 	// also get the depth texture
-	gl::draw(mFbo->getDepthTexture(), Rectf(129, 0, 256, 128));
+	Rectf drawRect(0, 0, 256, 128);
+	gl::draw(mFbo->getDepthTexture(), drawRect);//Rectf(129, 0, 256, 128)
 }
 
 void SystemCinderApp::createNewWindow(int width, int height){
 	WindowRef newWindow = createWindow(Window::Format().size(width, height));
 	newWindow->setUserData(new WindowData);
+}
+void SystemCinderApp::mouseDrag(MouseEvent event)
+{
+	mCamUi.mouseDrag(event);
 }
 
 void SystemCinderApp::renderSceneToFbo()
@@ -268,12 +275,16 @@ void SystemCinderApp::draw()
 	gl::setMatrices(mCamFbo);
 	
 	// make texture out of the scene rendered into our FBO
-	VirtualSphere->createDisplay();
+	//VirtualSphere->createDisplay();
 
 	//mFbo->bindTexture();
 	VirtualSphere->setUpFboShouldBeMappedTexture(mFbo);
+	VirtualSphere->createShaders();
+	VirtualSphere->createDisplay();
 
 	{
+		//vec3 offset(0, 3, 0);
+		//gl::translate(offset);
 		// use our FBO to texture the sphere
 		//gl::ScopedGlslProg shaderScp(gl::getStockShader(gl::ShaderDef().texture()));
 		VirtualSphere->mDisplay->draw();
