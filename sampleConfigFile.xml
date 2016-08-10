@@ -18,7 +18,7 @@
 	<tracker>Fastrak</tracker>
 
 	<!-- Specify Renderer: OpenGL, Unreal, Unity-->
-	<renderer>Unreal</renderer>
+	<renderer>OpenGL</renderer>
 
 </demoElement>
 

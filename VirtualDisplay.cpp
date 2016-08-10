@@ -1,5 +1,17 @@
 #include "VirtualDisplay.h"
 
+VirtualDisplay::VirtualDisplay(string* displayType){
+	if ((char*)displayType == "VirtualCube"){
+		mShapeSelected = mShapeCurrent = CUBE;
+	}
+	else {
+		mShapeSelected = mShapeCurrent = SPHERE;
+	}
+	mWireframe = false;
+	//mSolidframe = true;
+
+}
+
 void VirtualDisplay::mouseDown(MouseEvent event){
 
 
@@ -23,28 +35,67 @@ void VirtualDisplay::createGrid(){
 
 	
 }
+void VirtualDisplay::createParams(){
+	// creating parameters for the UI, we can toggle values
+#if ! defined( CINDER_GL_ES )
+	vector<string> displayShape = { "Sphere", "Cube" };
+	mParams = params::InterfaceGl::create(getWindow(), "Virtual Display", toPixels(ivec2(300, 340)));
+	mParams->addParam("DisplayShape", displayShape, (int*)&mShapeSelected);
+	
+	mParams->addSeparator();
 
-void VirtualDisplay::createSphere(){
+	
+	mParams->addParam("Wire Display", &mWireframe);
+	mParams->addParam("Subdivision Horizontal for Wire Display", &mDivHoriz).min(1).max(500).updateFn([this] {createDisplay(); });
+	mParams->addParam("Subdivision Vertical for Wire Display", &mDivVerti).min(1).max(500).updateFn([this] {createDisplay(); });
+	mParams->addParam("Subdivision Circle for Wire Display", &mDivCircle).min(1).max(500).updateFn([this] {createDisplay(); });
 
-	try {
-		mWireShader = gl::context()->getStockShader(gl::ShaderDef().color());
-	}
-	catch (Exception &exc) {
-		exit;
-	}
+#endif
+}
 
-
-	if (mWireframe == true){
-		mWiredSphere = gl::Batch::create(geom::WireSphere().radius(3).center(vec3(0,3,0)).subdivisionsHeight(mDivVerti).subdivisionsAxis(mDivHoriz).subdivisionsCircle(mDivCircle), mWireShader);
-	}
-	else {
-
-		mWiredSphere = gl::Batch::create(geom::Sphere().radius(3).center(vec3(0, 3, 0)), mWireShader);
-	}
-
-
+void loadGeometry(){
 
 }
+void VirtualDisplay::createDisplay(gl::FboRef mFbo){
+	auto shader = gl::ShaderDef().texture().lambert();
+	switch (mShapeCurrent) {
+	default:
+		mShapeSelected = SPHERE;
+	case SPHERE:
+		if (mWireframe == true){
+			try {
+				mShader = gl::context()->getStockShader(gl::ShaderDef().color());
+			}
+			catch (Exception &exc) {
+				exit;
+			}
+			mDisplay = gl::Batch::create(geom::WireSphere().radius(3).center(vec3(0, 3, 0)).subdivisionsHeight(mDivVerti).subdivisionsAxis(mDivHoriz).subdivisionsCircle(mDivCircle), mShader);
+		}
+		else {
+			mFbo->bindTexture();
+			mShader = gl::getStockShader(shader);
+			mDisplay = gl::Batch::create(geom::Sphere().radius(3).center(vec3(0, 3, 0)), mShader); \
+		}
+	case CUBE:
+		if (mWireframe == true){
+			try {
+				mShader = gl::context()->getStockShader(gl::ShaderDef().color());
+			}
+			catch (Exception &exc) {
+				exit;
+			}
+			mDisplay = gl::Batch::create(geom::WireCube().subdivisionsX(mDivVerti).subdivisionsY(mDivHoriz).subdivisionsZ(mDivCircle), mShader);
+		}
+		else {
+			mFbo->bindTexture();
+			mShader = gl::getStockShader(shader);
+
+			mDisplay = gl::Batch::create(geom::Cube(), mShader); \
+		}
+
+	}
+}
+
 
 void VirtualDisplay::setUpProjectors(){
 

@@ -14,8 +14,15 @@ using namespace ci::app;
 using namespace std;
 char* XML_FILE_PATH = "sampleConfigFile.xml";
 
+
+void prepareSettings(App::Settings* settings)
+{
+	settings->setWindowSize(1024, 768);
+}
 class SystemCinderApp : public App {
   public:
+
+	
 	void setupScene();
 	void mouseDown( MouseEvent event ) override;
 	void update() override;
@@ -40,12 +47,16 @@ private:
 	void setupFbo();
 	void setup() override;
 	void draw() override;
+	void createParams();
 	//void resize() override;
 	void drawSecond(); // draw onto second window
 	void renderSceneToFbo();
 	void createNewWindow(int width, int height);
 	gl::FboRef mFbo;
+	
 	static const int FBO_WIDTH = 256, FBO_HEIGHT = 256;
+
+
 };
 
 const int SKY_BOX_SIZE = 600;
@@ -109,6 +120,7 @@ void SystemCinderApp::setup()
 	/*mCam.setFov(45.0f);
 	mCam.setAspectRatio(getWindowAspectRatio());
 	mCamUi = CameraUi(&mCam, getWindow());*/
+	VirtualSphere = new VirtualDisplay(&(configuration->GetDisplayType()));
 	
 
 }
@@ -148,6 +160,8 @@ void SystemCinderApp::setupScene()
 void SystemCinderApp::mouseDown( MouseEvent event )
 {
 }
+
+
 void SystemCinderApp::keyDown(KeyEvent event){
 	if (event.getCode() == KeyEvent::KEY_w){
 		VirtualSphere->mWireframe == !VirtualSphere->mWireframe;
@@ -248,20 +262,21 @@ void SystemCinderApp::draw()
 	gl::draw(mFbo->getColorTexture(), Rectf(0, 0, 129, 128));
 	// also get the depth texture
 	gl::draw(mFbo->getDepthTexture(), Rectf(129, 0, 256, 128));
-	VirtualSphere = new VirtualDisplay();
+	
 	//->
 	//gl::ScopedMatrices scopeMatrix;
 	gl::setMatrices(mCamFbo);
 	
 	// make texture out of the scene rendered into our FBO
-	//VirtualSphere->createSphere();
-	mFbo->bindTexture();
+	VirtualSphere->createDisplay(mFbo);
+
+	//mFbo->bindTexture();
 
 	{
 		// use our FBO to texture the sphere
-		gl::ScopedGlslProg shaderScp(gl::getStockShader(gl::ShaderDef().texture()));
-		//VirtualSphere->mWiredSphere->draw();
-		gl::drawSphere(vec3(0,3,0), 2.5, 1);
+		//gl::ScopedGlslProg shaderScp(gl::getStockShader(gl::ShaderDef().texture()));
+		VirtualSphere->mDisplay->draw();
+		//gl::drawSphere(vec3(0,3,0), 2.5, 1);
 	}
 	
 	
