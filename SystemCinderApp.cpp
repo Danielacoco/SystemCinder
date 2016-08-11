@@ -45,15 +45,20 @@ protected:
 	double mCurrentSeconds;
 	
 private:
+
+	int mDisplayType;
 	void setupFbo();
 	void setup() override;
 	void draw() override;
 	void createParams();
 	//void resize() override;
+	void drawFirst();
 	void drawSecond(); // draw onto second window
 	void renderSceneToFbo();
 	void createNewWindow(int width, int height);
 	gl::FboRef mFbo;
+
+	WindowRef mProjectors[5];
 	
 	static const int FBO_WIDTH = 256, FBO_HEIGHT = 256;
 
@@ -68,6 +73,9 @@ void SystemCinderApp::setup()
 	//create configuration object to parse program information
 	Configuration* configuration = new Configuration;
 	configuration->SetConfigurationVariables(XML_FILE_PATH);
+	// get what kind of Display we will be using and assign it to our attribute mDisplayType
+	mDisplayType = configuration->GetDisplayID();
+
 	// Load corresponding shaders, place in assets and use something like this:
 	/*
 	try{
@@ -79,20 +87,8 @@ void SystemCinderApp::setup()
 
 	*/
 	// After parsing configuration we determine how many projectors we have
-	int i = 1;
-	/* open a window for every projector, one less than the number as default window is created automatically
-	 still provide the default window with an instance of window Data*/
-	getWindow()->setUserData(new WindowData);
-	for (i; i < configuration->GetNumberOfProjectors(); i++){
-		createNewWindow(configuration->GetWidthProjectors(), configuration->GetHeightProjectors());
-	}
-	WindowRef mMainWindow = getWindowIndex(0);
-	WindowRef mSecondWindow = getWindowIndex(1);
-	mMainWindow->getSignalDraw().connect([this] { drawSecond(); });
-	//mSecondWindow->connectDraw(&SystemCinderApp::drawSecond, this);
 	
-
-	//to render our scene to an FBO
+	/*FBO where we will be rendering our scene */
 	gl::Fbo::Format format;
 	mFbo = gl::Fbo::create(FBO_HEIGHT, FBO_WIDTH, format.depthTexture());
 
@@ -100,17 +96,10 @@ void SystemCinderApp::setup()
 	//VirtualSphere->createSphere();
 	//VirtualSphere->setUpProjectors();
 
-	// setupScene() impelmented by user
-	setupScene();
+	/* if we need to track time uncomment following line */
+	//mCurrentSeconds = getElapsedSeconds();
 
-	gl::enableDepthRead();
-	gl::enableDepthWrite();
-
-	// track current time
-	mCurrentSeconds = getElapsedSeconds();
-
-	// setting the cameras to view scene and simulator
-	// should work parallel
+	/* the cameras to view scene and simulator should work parallel, therfore if we are using simulator
 	//mCamFboUi = CameraUi(&mCamFbo, getWindow());
 	//set up the camera to render our sphere
 	/*CameraPersp mCam(getWindowWidth(), getWindowHeight(), 60.0f);
@@ -121,9 +110,35 @@ void SystemCinderApp::setup()
 	/*mCam.setFov(45.0f);
 	mCam.setAspectRatio(getWindowAspectRatio());
 	mCamUi = CameraUi(&mCam, getWindow());*/
-	VirtualSphere = new VirtualDisplay(&(configuration->GetDisplayType()));
-	
 
+	/*If virtualSphere or VirtualCube where determined in configuration we call the VirtualDisplayConstructor*/
+	if (mDisplayType < 3){
+		VirtualSphere = new VirtualDisplay(mDisplayType);
+	}
+	else {
+
+		/*Else we the hardware sphere was selected, therefore we create the corresponding windows*/
+		int i = 1;
+		/* open a window for every projector, if we have 2 projectors we will have 3 windows in total (1 desktop monitor, 1 for projector1 and 1 for projector2*/
+		/* As this is the defult window we set its size in prepareSettings(App::Settings* settings) at top of this file */
+		WindowRef mMainWindow = getWindow();
+		// dektop monitor windows
+		mProjectors[0] = mMainWindow;
+		for (i; i <= configuration->GetNumberOfProjectors(); i++){
+			mProjectors[i] = createWindow(Window::Format().size(configuration->GetWidthProjectors(), configuration->GetHeightProjectors()));
+		}
+		/*connect each window with it's draw method where we will generate and send the corresponding texture from the FBO.
+		You will need to create a method for every projector we add to the system*/
+		mProjectors[0]->getSignalDraw().connect([this] { draw(); });
+		mProjectors[1]->getSignalDraw().connect([this] { drawFirst(); });
+		mProjectors[2]->getSignalDraw().connect([this] { drawSecond(); });
+	}
+
+	/* setupScene() impelmented by user as if it where a normal application*/
+	setupScene();
+
+	gl::enableDepthRead();
+	gl::enableDepthWrite();
 }
 void SystemCinderApp::setupScene()
 {
@@ -170,6 +185,7 @@ void SystemCinderApp::keyDown(KeyEvent event){
 	}
 
 }
+void SystemCinderApp::drawFirst(){}
 
 void SystemCinderApp::drawSecond(){
 	WindowData* data = getWindow()->getUserData<WindowData>();
@@ -255,9 +271,9 @@ void SystemCinderApp::draw()
 {
 	gl::clear(Color(1.0f, 1.0f, 1.0f));
 
-	WindowData *data = getWindow()->getUserData<WindowData>();
+	//WindowData *data = getWindow()->getUserData<WindowData>();
 	
-	gl::color(data->mColor);
+	//gl::color(data->mColor);
 	//set up the camera to render our sphere
 	/*CameraPersp mCam(getWindowWidth(), getWindowHeight(), 60.0f);
 	mCam.setPerspective(60, getWindowAspectRatio(), 1, 1000);

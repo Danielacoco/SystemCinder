@@ -31,12 +31,12 @@ using namespace std;
 class VirtualDisplay {
 public:
 
-	VirtualDisplay(string* displayType);
+	VirtualDisplay(int displayID);
 
 	void mouseDown (MouseEvent event);
 	void mouseDragg(MouseEvent event);
 
-	void pick(const ivec2 &mousepOS); // maybe pick projectors?
+	//void pick(const ivec2 &mousepOS); // maybe pick projectors?
 
 	void createGrid();
 	void createShaders();

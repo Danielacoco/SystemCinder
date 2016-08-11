@@ -1,6 +1,6 @@
 <?xml version = '1.0' encoding="UTF-8" ?>
 <!--Display IDs: VirtualSphere = 1, VirtualCube = 2, Sphere = 3, Cube = 4-->
-<demoElement projectors ="2" 
+<demoElement projectors ="3" 
              width ="700" 
              height="700" 
              display="VirtualSphere" 

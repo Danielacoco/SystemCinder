@@ -1,12 +1,17 @@
 #include "VirtualDisplay.h"
 
-VirtualDisplay::VirtualDisplay(string* displayType){
-	if ((char*)displayType == "VirtualCube"){
+VirtualDisplay::VirtualDisplay(int displayType){
+	switch (displayType){
+	case (1) :
+		mShapeSelected = mShapeCurrent = SPHERE;
+		break;
+	case (2) :
 		mShapeSelected = mShapeCurrent = CUBE;
-	}
-	else {
+		break;
+	default:
 		mShapeSelected = mShapeCurrent = SPHERE;
 	}
+
 	mWireframe = false;
 	createParams();
 
