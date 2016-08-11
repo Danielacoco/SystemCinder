@@ -86,7 +86,7 @@ void VirtualDisplay::setUpFboShouldBeMappedTexture(gl::FboRef mFbo){
 }
 void VirtualDisplay::createDisplay(){
 	vec3 offset(0, 3, 0);
-	switch (mShapeCurrent) {
+	switch (mShapeSelected) {
 	default:
 		mShapeSelected = CUBE;
 	case SPHERE:
@@ -203,7 +203,7 @@ void VirtualDisplay::drawProjectors(){
 	ray2.draw();
 
 
-	//draw Fustums!!
+	//draw Frustums!!
 	//gl::color(ColorA(1.0f, 0.0f, 0.0f, 0.0f));
 	gl::drawFrustum(mProjector1);
 	gl::drawFrustum(mProjector2);

@@ -13,8 +13,6 @@ void Tracker::handle_analog(void* userdata, const vrpn_ANALOGCB a){
 
 	p->x = a.channel[0];
 	p->y = a.channel[1];
-
-
 }
 
 void Tracker::handle_tracker(void* userdata, const vrpn_TRACKERCB t){

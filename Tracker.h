@@ -25,7 +25,6 @@ struct posquat {
 };
 class Tracker {
 
-
 public:
 	
 	// in case we want to handle buttons

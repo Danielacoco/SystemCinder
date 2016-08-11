@@ -36,43 +36,38 @@ public:
 	void mouseDown (MouseEvent event);
 	void mouseDragg(MouseEvent event);
 
-	//void pick(const ivec2 &mousepOS); // maybe pick projectors?
-
 	void createGrid();
 	void createShaders();
-	void createDisplay();//gl::FboRef mFbo
+	void createDisplay();
 	void createParams();
 	void setUpProjectors();
 	void drawProjectors();
+	/*This method should generate the already mapped texture for the whole sphere
+	OR find way to map generated textures of each projector onto the correct location on the sphere
+	 :( */
 	void setUpFboShouldBeMappedTexture(gl::FboRef mFbo);
 
+	/*Show wireframe of geometry?*/
 	bool mWireframe;
-	//bool mSolidframe;
+	
+	/*Floor grid*/
 	gl::VertBatchRef  mGrid;
 
-	//gl::BatchRef mWiredDisplay;
+	/*Batch reference of the diplay*/
 	gl::BatchRef mDisplay;
 
-
 	enum DisplayShape { SPHERE, CUBE };
-
-
-
+	/* shaders for the wired geometry or the solid/textured  geometry*/
 	gl::GlslProgRef		mShader;
 	gl::GlslProgRef		mWireShader;
-	CameraPersp  vCam;
-	gl::VboMeshRef  mVerticesMetch;
-	gl::BatchRef mVerticesBatch;
 
-	bool mNeedsRedraw;
-	vec4 mDefaultVertexColor = vec4(0.7f, 0.3f, 0.7f, 1.0f);
 
-	
+	/*Window UI that displays parameters of simulator*/
 #if ! defined ( CINDER_GL_ES )
 	params::InterfaceGlRef	mParams;
 #endif
-	// Projector variable settings
-
+	
+	/*Projector variable settings */
 	CameraPersp mProjector1;
 	CameraPersp mProjector2;
 	vec3 mLookAt1 = vec3(0, 3, 0);

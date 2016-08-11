@@ -40,7 +40,7 @@ class SystemCinderApp : public App {
 	CameraUi	mCamUi;
 	CameraUi	mCamFboUi;
 
-	VirtualDisplay		*VirtualSphere;
+	VirtualDisplay		*mVirtualDisplay;
 protected:
 	double mCurrentSeconds;
 	
@@ -112,10 +112,9 @@ void SystemCinderApp::setup()
 	mCamUi = CameraUi(&mCam, getWindow());*/
 
 	/*If virtualSphere or VirtualCube where determined in configuration we call the VirtualDisplayConstructor*/
-	if (mDisplayType < 3){
-		VirtualSphere = new VirtualDisplay(mDisplayType);
-	}
-	else {
+	if (mDisplayType <= 2){
+		mVirtualDisplay = new VirtualDisplay(mDisplayType);
+	}else {
 
 		/*Else we the hardware sphere was selected, therefore we create the corresponding windows*/
 		int i = 1;
@@ -181,7 +180,7 @@ void SystemCinderApp::mouseDown( MouseEvent event )
 
 void SystemCinderApp::keyDown(KeyEvent event){
 	if (event.getCode() == KeyEvent::KEY_w){
-		VirtualSphere->mWireframe == !(VirtualSphere->mWireframe);
+		mVirtualDisplay->mWireframe == !(mVirtualDisplay->mWireframe);
 	}
 
 }
@@ -294,32 +293,32 @@ void SystemCinderApp::draw()
 	//VirtualSphere->createDisplay();
 
 	//mFbo->bindTexture();
-	VirtualSphere->setUpFboShouldBeMappedTexture(mFbo);
-	VirtualSphere->createShaders();
-	VirtualSphere->createDisplay();
+	mVirtualDisplay->setUpFboShouldBeMappedTexture(mFbo);
+	mVirtualDisplay->createShaders();
+	mVirtualDisplay->createDisplay();
 
 	{
 		//vec3 offset(0, 3, 0);
 		//gl::translate(offset);
 		// use our FBO to texture the sphere
 		//gl::ScopedGlslProg shaderScp(gl::getStockShader(gl::ShaderDef().texture()));
-		VirtualSphere->mDisplay->draw();
+		mVirtualDisplay->mDisplay->draw();
 		//gl::drawSphere(vec3(0,3,0), 2.5, 1);
 	}
 	
 	
 
 	
-	VirtualSphere->createGrid();
-	VirtualSphere->mGrid->draw();
+	mVirtualDisplay->createGrid();
+	mVirtualDisplay->mGrid->draw();
 	gl::drawCoordinateFrame(4);
 
-	VirtualSphere->setUpProjectors();
-	VirtualSphere->drawProjectors();
+	mVirtualDisplay->setUpProjectors();
+	mVirtualDisplay->drawProjectors();
 
 #if ! defined( CINDER_GL_ES )
-	if (VirtualSphere->mParams)
-		VirtualSphere->mParams->draw();
+	if (mVirtualDisplay->mParams)
+		mVirtualDisplay->mParams->draw();
 #endif
 
 	
