@@ -1,5 +1,7 @@
 #include "VirtualDisplay.h"
 
+/*constructor, parameter displayType is used to load the corresponding geometry*/
+
 VirtualDisplay::VirtualDisplay(int displayType){
 	switch (displayType){
 	case (1) :
@@ -12,7 +14,9 @@ VirtualDisplay::VirtualDisplay(int displayType){
 		mShapeSelected = mShapeCurrent = SPHERE;
 	}
 
+	/* if you want a wireframe geometry or a solid gemoetry, toggle mWireframe*/
 	mWireframe = false;
+	/* Create the UI where you can see useful information about the simulator*/
 	createParams();
 
 }
@@ -128,8 +132,6 @@ void VirtualDisplay::createShaders(){
 
 
 void VirtualDisplay::setUpProjectors(){
-
-
 	mProjector1.setEyePoint(mEyePointProj1);
 	mProjector2.setEyePoint(mEyePointProj2);
 	mProjector1.setPerspective(mFov, (3/4.0), mnearPlane, mfarPlane );
@@ -138,9 +140,6 @@ void VirtualDisplay::setUpProjectors(){
 	mProjector2.setLensShift(mLensShift);
 	mProjector1.lookAt(mLookAt1);
 	mProjector2.lookAt(mLookAt2);
-
-	
-
 
 }
 void VirtualDisplay::drawProjectors(){

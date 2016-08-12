@@ -1,3 +1,4 @@
+/*VIRTUALDISPLAY class is the simulator, you can control the geometry and projectors from here*/
 #ifndef VIRTUALDISPLAY_H
 #define VIRTUALDISPLAY_H
 

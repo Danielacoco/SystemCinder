@@ -1,4 +1,5 @@
-/* Initialization Variables, set up in Main function. Determine constants used throughout the project*/
+/* cONFIGURATION class parses and XML file where some variables and the setting for the project are used */ 
+/* parser used is Pugixml: http://pugixml.org/ */
 #ifndef _CONFIGURATION_H_
 #define _CONFIGURATION_H_
 
