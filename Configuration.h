@@ -10,7 +10,8 @@ using namespace std;
 class Configuration {
 
 public:
-	//Configuration();
+
+	Configuration(char* file);
 	~Configuration();
 	void SetConfigurationVariables(char* file);
 	//void SetConfigurationVariables();
@@ -26,11 +27,6 @@ public:
 	int GetNumberOfProjectors();
 	int GetWidthProjectors();
 	int GetHeightProjectors();
-	//void CreateCalibrationObjectsForProjectors();//---> diff way to do this
-	// Change these to ints instead of booleans depending on how we manage trackers,inputs and demos.( Using IDs )
-
-
-
 	int m_numProjectors;
 	const pugi::char_t* m_xml_tracker;
 	const pugi::char_t* m_xml_input;
@@ -41,9 +37,6 @@ public:
 	int m_xml_displayID;
 	const pugi::char_t* m_xml_demo;
 
-	//int m_widthProjectors[m_numProjectors];
-	//int m_heightProjectors[m_numProjectors];
-	//Calibration m_calibrationObjects[m_numProjectors];
 
 
 };

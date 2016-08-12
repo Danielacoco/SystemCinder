@@ -41,7 +41,7 @@ void VirtualDisplay::createGrid(){
 	
 }
 void VirtualDisplay::createParams(){
-	// creating parameters for the UI can't toggle values, only for showcase
+	// creating parameters for the UI
 #if ! defined( CINDER_GL_ES )
 	vector<string> displayShape = { "Sphere", "Cube" };
 	mParams = params::InterfaceGl::create(getWindow(), "Virtual Display", toPixels(ivec2(300, 500)));
@@ -85,6 +85,7 @@ void VirtualDisplay::setUpFboShouldBeMappedTexture(gl::FboRef mFbo){
 
 }
 void VirtualDisplay::createDisplay(){
+	/*center for world is at center of grid, displays are shifted up by the offset*/
 	vec3 offset(0, 3, 0);
 	switch (mShapeSelected) {
 	default:
@@ -101,7 +102,8 @@ void VirtualDisplay::createDisplay(){
 		break;
 	case CUBE:
 		if (mWireframe == true){
-			mDisplay = gl::Batch::create(geom::WireCube().size(vec3(6,6,6)).subdivisionsX(mDivVerti).subdivisionsY(mDivHoriz).subdivisionsZ(mDivCircle), mWireShader);
+			auto wirecube = geom::WireCube() >> geom::Scale(6) >> geom::Translate(offset);
+			mDisplay = gl::Batch::create(wirecube, mWireShader);
 		}
 		else {
 			mFboShouldBeMappedTextureInFuture->bindTexture();
@@ -204,7 +206,7 @@ void VirtualDisplay::drawProjectors(){
 
 
 	//draw Frustums!!
-	//gl::color(ColorA(1.0f, 0.0f, 0.0f, 0.0f));
+	//gl::ScopedColor(ColorA(1.0f, 0.0f, 0.0f, 1.0f));
 	gl::drawFrustum(mProjector1);
 	gl::drawFrustum(mProjector2);
 }
