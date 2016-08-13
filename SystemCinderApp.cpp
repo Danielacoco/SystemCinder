@@ -5,8 +5,6 @@ void prepareSettings(App::Settings* settings)
 	settings->setWindowSize(900, 700);
 }
 
-
-
 void SystemCinderApp::setup()
 {
 	//create configuration object to parse program information
@@ -91,17 +89,90 @@ void SystemCinderApp::setupScene()
 
 }
 
-
-void SystemCinderApp::mouseDown( MouseEvent event )
+void SystemCinderApp::drawScene()
 {
-	mCamFboUi.mouseDown(event);
+	//draw our teapot object
+	mCubeMap->bind();
+	gl::pushMatrices();
+	gl::multModelMatrix(mObjectRotation);
+	gl::scale(vec3(4));
+	mTeapotBatch->draw();
+	//mSphereBatch->draw();
+	gl::popMatrices();
+
+	//draw skybox
+	gl::pushMatrices();
+	gl::scale(600, 600, 600);
+	mSkyBoxBatch->draw();
+	gl::popMatrices();
+
 }
 
+void SystemCinderApp::renderSceneToFbo()
+{
+	gl::ScopedFramebuffer fbScp(mFbo);
+	gl::clear(Color(0, 0, 0));
 
-void SystemCinderApp::keyDown(KeyEvent event){
-	if (event.getCode() == KeyEvent::KEY_w){
-		mVirtualDisplay->mWireframe == !(mVirtualDisplay->mWireframe);
+	//set the viewport to match the dimensions of the FBO;
+	gl::ScopedViewport scVprt(ivec2(0), mFbo->getSize());
+
+	gl::setMatrices(mCamFbo);
+
+	drawScene();
+}
+
+void SystemCinderApp::update()
+{
+	//elapsed time
+	double timePassed = getElapsedSeconds() - mCurrentSeconds;
+	mCurrentSeconds += timePassed;
+
+	// rotate the teapot object
+	mObjectRotation *= rotate(0.04f, normalize(vec3(0.1f, 1, 0.1f)));
+
+	renderSceneToFbo();
+
+}
+
+void SystemCinderApp::drawMain(){
+	/* This method should include anything you would want to see while the Hardware Sphere/Display is operating,
+	right now the Default window is drawing some other demo :P*/
+	//----------------------//
+	//CODE FROM CINDER PAGE //
+	//---------------------//
+	gl::clear();
+	gl::enableDepthRead();
+	gl::enableDepthWrite();
+
+	CameraPersp cam;
+	cam.lookAt(vec3(5, 2, 5), vec3(0, 1, 0));
+	gl::setMatrices(cam);
+
+	auto lambert = gl::ShaderDef().lambert().color();
+	auto shader = gl::getStockShader(lambert);
+	shader->bind();
+
+	int numSpheres = 64;
+	float maxAngle = M_PI * 7;
+	float spiralRadius = 1;
+	float height = 3;
+
+	for (int s = 0; s < numSpheres; ++s) {
+		float rel = s / (float)numSpheres;
+		float angle = rel * maxAngle;
+		float y = rel * height;
+		float r = rel * spiralRadius * spiralRadius;
+		vec3 offset(r * cos(angle), y, r * sin(angle));
+
+		gl::pushModelMatrix();
+		gl::translate(offset);
+		gl::color(Color(CM_HSV, rel, 1, 1));
+		gl::drawSphere(vec3(), 0.1f, 30);
+		gl::popModelMatrix();
 	}
+	//---------------------------//
+	//CODE FROM CINDER PAGE END //
+	//-------------------------//
 
 }
 
@@ -116,11 +187,19 @@ void SystemCinderApp::drawFirst(){
 
 	/*loading shaders and/or projector data here*/
 
+	//auto img = loadAsset("data.bin");
+	//gl::Texture2dRef mTex = gl::Texture2d::create(img);
+
+	//if abouve does not work we can import the points loader Qian created in texture.h/.cpp 
+
 }
 
 /*Draw method for first projector, Projector2 specific code goes here*/
 void SystemCinderApp::drawSecond(){
 	/* Following code extracted from CINDER Guide's getting started page*/
+	//----------------------//
+	//CODE FROM CINDER PAGE //
+	//---------------------//
 	gl::clear();
 
 	// preserve the default Model matrix
@@ -154,92 +233,14 @@ void SystemCinderApp::drawSecond(){
 
 	// restore the default Model matrix
 	gl::popModelMatrix();
+
+	//---------------------------//
+	//CODE FROM CINDER PAGE END //
+	//-------------------------//
+
 	/*loading shaders and/or projector data here*/
 }
 
-void SystemCinderApp::mouseDrag(MouseEvent event)
-{
-	mCamFboUi.mouseDrag(event);
-}
-
-/* Here we render the scene the user created to our FBO*/
-void SystemCinderApp::renderSceneToFbo()
-{	
-	gl::ScopedFramebuffer fbScp(mFbo);
-	gl::clear(Color(0, 0, 0));
-	
-	//set the viewport to match the dimensions of the FBO;
-	gl::ScopedViewport scVprt(ivec2(0), mFbo->getSize());
-
-	gl::setMatrices(mCamFbo);
-
-	drawScene();
-}
-void SystemCinderApp::update()
-{
-	//elapsed time
-	double timePassed = getElapsedSeconds() - mCurrentSeconds;
-	mCurrentSeconds += timePassed;
-
-	// rotate the teapot object
-	mObjectRotation *= rotate(0.04f, normalize(vec3(0.1f, 1, 0.1f)));
-
-	renderSceneToFbo();
-
-}
-void SystemCinderApp::drawScene()
-{
-	//draw our teapor object
-	mCubeMap->bind();
-	gl::pushMatrices();
-	gl::multModelMatrix(mObjectRotation);
-	gl::scale(vec3(4));
-	mTeapotBatch->draw();
-	//mSphereBatch->draw();
-	gl::popMatrices();
-
-	//draw skybox
-	gl::pushMatrices();
-	gl::scale(600,600,600);
-	mSkyBoxBatch->draw();
-	gl::popMatrices();
-
-}
-void SystemCinderApp::drawMain(){
-	/* This method should include anything you would want to see while the Hardware Sphere/Display is operating, 
-	right now the Default window is not drawing anything*/
-	gl::clear();
-	gl::enableDepthRead();
-	gl::enableDepthWrite();
-
-	CameraPersp cam;
-	cam.lookAt(vec3(5, 2, 5), vec3(0, 1, 0));
-	gl::setMatrices(cam);
-
-	auto lambert = gl::ShaderDef().lambert().color();
-	auto shader = gl::getStockShader(lambert);
-	shader->bind();
-
-	int numSpheres = 64;
-	float maxAngle = M_PI * 7;
-	float spiralRadius = 1;
-	float height = 3;
-
-	for (int s = 0; s < numSpheres; ++s) {
-		float rel = s / (float)numSpheres;
-		float angle = rel * maxAngle;
-		float y = rel * height;
-		float r = rel * spiralRadius * spiralRadius;
-		vec3 offset(r * cos(angle), y, r * sin(angle));
-
-		gl::pushModelMatrix();
-		gl::translate(offset);
-		gl::color(Color(CM_HSV, rel, 1, 1));
-		gl::drawSphere(vec3(), 0.1f, 30);
-		gl::popModelMatrix();
-	}
-
-}
 void SystemCinderApp::drawSimulator()
 {
 	gl::viewport(getWindowSize());
@@ -251,9 +252,9 @@ void SystemCinderApp::drawSimulator()
 	gl::draw(mFbo->getColorTexture(), Rectf(0, 0, 129, 128));
 	// also get the depth texture
 	gl::draw(mFbo->getDepthTexture(), Rectf(129, 0, 256, 128));
-	
+
 	gl::setMatrices(mCamFbo);
-	
+
 	// If the Display type is not the real hardware sphere, we need to call simulator methods.
 	if (mDisplayType != 3){
 		mVirtualDisplay->setUpFboShouldBeMappedTexture(mFbo);
@@ -279,6 +280,22 @@ void SystemCinderApp::drawSimulator()
 	}
 }
 
+void SystemCinderApp::mouseDrag(MouseEvent event)
+{
+	mCamFboUi.mouseDrag(event);
+}
 
+/* Here we render the scene the user created to our FBO*/
+void SystemCinderApp::mouseDown(MouseEvent event)
+{
+	mCamFboUi.mouseDown(event);
+}
+
+void SystemCinderApp::keyDown(KeyEvent event){
+	if (event.getCode() == KeyEvent::KEY_w){
+		mVirtualDisplay->mWireframe == !(mVirtualDisplay->mWireframe);
+	}
+
+}
 
 CINDER_APP( SystemCinderApp, RendererGl, prepareSettings )

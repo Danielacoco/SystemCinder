@@ -1,3 +1,9 @@
+/*SYSTEMCINDERAPP is the core of the application, this class has the methods the user can use to create its demo and it also has the private methods we will use to 
+show the simulator or render the images to the projectors 
+Cinders website: https://libcinder.org/ 
+It is a easy to use library with a responsive community. It has core classes for cameras, meshes, geometric primitives and Objec loading. Also classes for texture
+FBO, lights, VBOs, GLSL. Webcam support fro video capture and an OO wrapper for OpenCV 3.0 which I though would be useful for the BologramProject*/
+
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
