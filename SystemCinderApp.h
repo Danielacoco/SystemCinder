@@ -51,6 +51,7 @@ private:
 	void drawMain();
 	void drawFirst();
 	void drawSecond(); 
+	//drawethird
 	void drawSimulator();
 	void createParams();
 

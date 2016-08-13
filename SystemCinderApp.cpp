@@ -45,9 +45,12 @@ void SystemCinderApp::setup()
 		}
 		/*connect each window with it's draw method where we will generate and send the corresponding texture from the FBO.
 		You will need to create a method for every projector we add to the system*/
+		/* build a generate draw for each projector*/
 		mProjectors[0]->getSignalDraw().connect([this] { drawMain(); });
 		mProjectors[1]->getSignalDraw().connect([this] { drawFirst(); });
 		mProjectors[2]->getSignalDraw().connect([this] { drawSecond(); });
+		//mProjectors[3]->getSignalDraw().connect([this] { drawThird(); });
+
 
 
 	/*Else virtualSphere or VirtualCube where determined in configuration we call the VirtualDisplayConstructor*/
@@ -123,6 +126,7 @@ void SystemCinderApp::renderSceneToFbo()
 
 void SystemCinderApp::update()
 {
+	/*update head pos and interaction goes here*/
 	//elapsed time
 	double timePassed = getElapsedSeconds() - mCurrentSeconds;
 	mCurrentSeconds += timePassed;
@@ -134,7 +138,7 @@ void SystemCinderApp::update()
 
 }
 
-void SystemCinderApp::drawMain(){
+void SystemCinderApp::drawMain(){ /*draw your debug window, could be FBO*/
 	/* This method should include anything you would want to see while the Hardware Sphere/Display is operating,
 	right now the Default window is drawing some other demo :P*/
 	//----------------------//
@@ -285,7 +289,6 @@ void SystemCinderApp::mouseDrag(MouseEvent event)
 	mCamFboUi.mouseDrag(event);
 }
 
-/* Here we render the scene the user created to our FBO*/
 void SystemCinderApp::mouseDown(MouseEvent event)
 {
 	mCamFboUi.mouseDown(event);
